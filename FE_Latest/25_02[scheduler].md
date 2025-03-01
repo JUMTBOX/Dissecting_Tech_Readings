@@ -54,7 +54,7 @@ if ("scheduler" in window) {
 
 - ### 비동기 데이터 요청 시 user-visible 활용
 
-```javascript
+```jsx
 import { useEffect } from "react";
 
 function fetchData() {
@@ -85,7 +85,7 @@ export default function App() {
 - ### scheduler.yield()를 활용한 긴 작업 분할 <br>
   yield()를 활용하면 브라우저의 메인 스레드를 블로킹하지 않으면서 작업을 실행할 수 있습니다.
 
-```javascript
+```jsx
 async function heavyComputation() {
   for (let i = 0; i < 1000000; i++) {
     if (i % 10000 === 0) {
