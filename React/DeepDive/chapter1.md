@@ -141,12 +141,62 @@ export default objectIs;
 - 리액트에서는 이 Object.is 를 기반으로 동등 비교를 하는 shallowEqual 이라는 함수를 만들어 사용한다. 이 shallowEqual은 의존성 비교 등 리액트의 동등 비교가 필요한 다양한 곳에서 사용된다.
 
 ```tsx
-const {hasOwnProperty, is} = Object;
+const { hasOwnProperty, is, keys } = Object;
 
-fuction shallowEqual(objA:mixed, objB: mixed): boolean {
-    return
+function shallowEqual(objA: mixed, objB: mixed): boolean {
+  if (is(objA, objB)) {
+    return true;
+  }
+
+  if (
+    typeof objA !== "object" ||
+    objA === null ||
+    typeof objB !== "object" ||
+    objB === null
+  ) {
+    return false;
+  }
+  // 각 키 배열을 꺼낸다.
+  const [keysA, keysB] = [keys(objA), keys(objB)];
+  // 배열의 길이가 다르다면 false
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  for (let i = 0; i < keysA.length; i++) {
+    const currentKey = keysA[i];
+    if (
+      !hasOwnProperty.call(objB, currentKey) ||
+      !is(objA[currentKey], objB[currentKey])
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 ```
+
+- 리액트에서의 비교를 요약하자면 Object.is로 먼저 비교를 수행한 다음에 Object.is에서 수행하지 못하는 비교, 즉 객체 간 얕은 비교를 한번 더 수행하는 것을 알 수 있다. 객체 간 얕은 비교란 객체의 첫 번째 깊이에 존재하는 속성 값만 비교한다는 것을 의미한다.
+
+- 이렇게 객체의 얕은 비교까지만 구현한 이유는 무엇일까? 먼저 리액트에서 사용하는 JSX props는 객체이고, 그리고 여기에 있는 props만 일차적으로 비교하면 되기 때문이다. 예제 코드를 보자
+
+```tsx
+type Props = {
+  hello: string;
+};
+
+function HelloComponent(props: Props) {
+  return <h1>{props.hello}</h1>;
+}
+
+// ...
+
+function App() {
+  return <HelloComponent hello={"hi"} />;
+}
+```
+
+- 위 코드에서 props 는 객체다. 그리고 기본적으로 리액트는 props 에서 꺼내온 값을 기준으로 렌더링을 수행하기 때문에 일반적인 케이스에서는 얕은 비교로 충분하다. 이러한 특성을 안다면 props에 또 다른 객체를 넘겨준다면 리액트 렌더링이 예상치 못하게 동작한다는 것을 알 수 있다.
 
 #### 1.1.5 정리
 
