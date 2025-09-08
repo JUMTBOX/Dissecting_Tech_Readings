@@ -41,6 +41,9 @@
   - react element의 내용이 DOM 에 반영되기 위해, 먼저 VDOM 에 추가되어야 하는데, <br>
     이를 위해 react element 를 확장한 객체
     - 이 fiber 객체에서 컴포넌트의 상태, life cycle, hook 이 관리된다.
+  - (25.09.08) 정확히는 "react element 를 확장한 객체" 라는 정의는 틑린 말...
+  - React Reconciler가 React element를 읽어 그것을 기반으로 Fiber 객체를 생성함
+  - 따라서 Fiber 객체는 React element의 확장이 아니라, React element를 입력으로 생성된 별도의 구조체.. 
 
 ## 더 알아보기
 
