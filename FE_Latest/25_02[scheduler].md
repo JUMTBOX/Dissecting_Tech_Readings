@@ -10,9 +10,9 @@
 - window.scheduler는 Scheduler 객체를 반환하며, 이 객체의 핵심 기능은 다음과 같습니다.
 
 - 메서드 설명
-  scheduler.postTask(task, options) 우선순위 기반으로 작업을 예약
-  scheduler.yield() 현재 실행 중인 작업을 중단하고 다른 대기 작업을 실행하도록 양보
-  scheduler.getPriority() 현재 실행 중인 코드의 우선순위를 확인
+  - scheduler.postTask(task, options) - 우선순위 기반으로 작업을 예약
+  - scheduler.yield() - 현재 실행 중인 작업을 중단하고 다른 대기 작업을 실행하도록 양보
+  - scheduler.getPriority() - 현재 실행 중인 코드의 우선순위를 확인
 
 ### 3. postTask() 메서드와 우선순위 전략
 
@@ -46,11 +46,11 @@ if ("scheduler" in window) {
 
 ### 4. 기존 API와의 차이점 및 비교
 
-- 기존 방식 window.scheduler
-  setTimeout(callback, delay) 정확한 우선순위 지정 불가, 일정 지연 후 실행
-  requestIdleCallback(callback) 메인 스레드가 유휴 상태일 때 실행, 우선순위 지정 불가
-  window.scheduler.postTask(task, { priority }) 명확한 우선순위 지정 가능, 작업 실행 최적화 5. 실전 적용 예시: React UI 최적화
-  React 앱에서 window.scheduler를 활용하여 UI 성능을 향상할 수 있습니다.
+- 기존 방식 vs window.scheduler
+  - setTimeout(callback, delay) - 정확한 우선순위 지정 불가, 일정 지연 후 실행
+  - requestIdleCallback(callback) - 메인 스레드가 유휴 상태일 때 실행, 우선순위 지정 불가
+  - window.scheduler.postTask(task, { priority: "${priority}"}) - 명확한 우선순위 지정 가능, 작업 실행 최적화 5. 실전 적용 예시: React UI 최적화
+  - React 앱에서 window.scheduler를 활용하여 UI 성능을 향상할 수 있습니다.
 
 - ### 비동기 데이터 요청 시 user-visible 활용
 

@@ -18,7 +18,7 @@
 ### fiber 를 파악하기 위해 구조 분석 ...
 
 - useState 훅의 코드레벨부터 <br>
-  즉, 리액트 훅의 동작을 분석하면서 리액트 패키지 내부 구조 까보기 -> fiber 파악!
+  즉, 리액트 훅의 동작을 분석하면서 리액트 패키지 내부 구조 까보기 -> fiber 아키텍처 파악!
 
 - 개요
   - 리액트라는 큰 그림을 대략 설명, 이후 각 패키지를 좀 더 자세히 살펴보며 <br>
@@ -26,7 +26,7 @@
   - 리액트의 패키지 구성 요소들 , react, shared, scheduler, reconciler 등
   - 각 구성 요소들이 어떻게 상호작용하여 hook 을 실행하는지
     - useState, useReducer, useEffect, useLayoutEffect 등 hook 부터 시작
-    - hoo -> scheduler -> reconciler
+    - hook -> scheduler -> reconciler
 
 ## 더 알아보기
 
