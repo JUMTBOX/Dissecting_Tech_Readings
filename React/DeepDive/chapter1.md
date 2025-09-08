@@ -542,7 +542,7 @@ hello["안녕"]; //undefined
 ```
 
 - Object.keys 는 string [] 타입을 반환 ( 덕 타이핑 문제 )
-
+- TS의 Object.keys 에 대한 반환 타입을 string[] 대신 개발자가 단언한 타입으로 강제하는 방법
 ```tsx
 // solution 1
 (Object.keys(hello) as Array<keyof Hello>).map((key) => {
@@ -556,5 +556,7 @@ Object.keys(hello).map((key) => {
   return value;
 });
 ```
+- 이처럼 JS는 객체의 타입에 구애받지 않고 객체의 타입에 열려 있으므로 TS도 이러한 JS의 특징을 맞춰주어야 한다.
+- 즉, TS는 이렇게 모든 키가 들어올 수 있는 가능성이 열려 있는 객체의 키에 포괄적으로 대응하기 위해 string[] 으로 타입을 제공하는 것
 
-#### 1.7.3 타입스크립트 전환 가이드
+#### 1.7.3 타입스크립트 전환 가이드 (생략)
