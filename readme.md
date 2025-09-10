@@ -6,6 +6,9 @@
 ### 2. [youtube] Boaz 리액트 까보기 시리즈
 - https://youtu.be/JadWu4Ygnyc?si=SwYbVFrtGNkprpuL
 
+### 2-1. React 톺아보기 ( React 16.12.0 기준 작성 )
+- https://goidle.github.io/react/in-depth-react-preview/
+
 ### 3. Advanced React by nadia makarevich (x Atlassian FE-Lead)
 - https://www.developerway.com/books-and-courses
 
