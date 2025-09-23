@@ -14,3 +14,6 @@
 
 ### 4. FE_Latest_Article (중에 흥미로운 것들 골라서...)
 - https://kofearticle.substack.com/
+
+### 5. 자바스크립트 + 리액트 디자인 패턴 ( 애디 오스마니 )
+- https://product.kyobobook.co.kr/detail/S000213880201
