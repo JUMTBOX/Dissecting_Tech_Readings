@@ -29,6 +29,7 @@
   -  ```CallSite```? : ```invokedynamic``` 호출 지점과 연결되는 "가변 타깃 홀더", 해당 바이트코드의 실행은 항상 이 *CallSite*의 **현재 타깃(MethodHandle)** 에 위임된다.<br> 
     상수형/가변형/휘발성 변형이 있다.
   - ```MethodHandle```? : JVM이 직접 실행할 수 있는 **"타입이 있는 저수준 함수 참조"** 이다. ```invokeExact/invoke```로 호출하며, 대상은 메서드,생성자,필드 접근 등이 있다.
+  - ```부트스트랩 메서드```? : ```invokedynamic``` 같은 동적 호출 지점을 처음 실행할 때 JVM이 호출해 링크를 완료하는 메서드, 이 메서드는 호출 지점의 이름·타입과 정적 인자를 받아 ```CallSite```를 반환하고, 이후 해당 호출 지점은 ```CallSite```의 타깃 ```MethodHandle```을 통해 실행
 #### 2. ```LambdaMetaFactory.metafactory```란?
 - ```invokedynamic```의 부트스트랩 메서드로, 람다메서드 참조를 **함수형 인터페이스 인스턴스** 로 만들어내는 ```CallSite```를 반환한다. 이후에 이 ```CallSite```의 타깃을 호출하면 캡처 값이 주입된 함수 객체가 생성된다.  
 #### 3. ```SAM 메서드```란?
