@@ -158,10 +158,123 @@ var ComponentC = (0, _jsxRuntime.jsx)('div', {
 - 이 하나의 스택에 렌더링에 필요한 작업들이 쌓이면 이 스택이 빌 때까지 동기적으로 작업이 이루어졌다.
 - 싱글 스레드 기반인 JS의 특징으로 인해 이 동기적인 작업은 중단될 수 없었고, 이는 비효율성으로 이루어졌다.
 
-- 그렇다면 파이버는 어떻게 구현되어 있을까? 파이버는 일단 하나의 작업 단위로 구성되어 있다. 리액트는 이러한 작업 단위를 하나씩 처리하고 finishWork()라는 작업으로 마무리한다.
+- 그렇다면 파이버는 어떻게 구현되어 있을까? 파이버는 일단 하나의 작업 단위로 구성되어 있다. 리액트는 이러한 작업 단위를 하나씩 처리하고 finishedWork()라는 작업으로 마무리한다.
 <br/> 그리고 이 작업을 커밋해 실제 브라우저 DOM에 가시적인 변경 사항을 만들어 낸다. 그리고 이러한 단계는 아래 두 단계로 나눌 수 있다.
   1. 렌더 단계에서 리액트는 사용자에게 노출되지 않는 모든 비동기 작업을 수행한다. 그리고 이 단계에서 앞서 언급한 파이버의 작업, 우선순위를 지정하거나 중지시키거나 버리는 등의 작업이 일어난다.
   2. 커밋 단계에서는 앞서 언급한 것처럼 DOM에 실제 변경 사항을 반영하기 위한 작업, commitWork()가 실행되는데, 이 과정은 앞서와 다르게 동기식으로 일어나고 중단될 수도 없다.
+
+- 파이버는 단순한 자바스크립트 객체로 구성되어 있다.
+- React Element와 유사하다고 느낄 수 있지만 한 가지 중요한 차이점은 React Element는 렌더링이 발생할 때마다 새롭게 생성되지만 파이버는 가급적이면 재사용된다는 사실이다.
+- 파이버는 컴포넌트가 최초로 마운트되는 시점에 생성되어 이후에는 가급적이면 재사용된다.
+
+```jsx
+/* 리액트에 작성되어 있는 파이버를 생성하는 다양한 함수 */
+
+var createFiber = function (tag, pendingProps, key, mode) {
+    return new FiberNode(tag, pendingProps, key, mode);
+}
+
+// 생략...
+function createFiberFromElement (element, mode, lanes) {
+    var owner = null;
+    {
+        owner = element._owner;
+    }
+    var type = element.type;
+    var key = element.key;
+    var pendingProps = element.props;
+    var fiber = createFiberFromTypeAndProps(
+        type,
+        key,
+        pendingProps,
+        owner,
+        mode,
+        lanes
+    );
+    
+    {
+        fiber._debugSource = element._source;
+        fiber._debugOwner = element._owner;
+    }
+    
+    return fiber;
+}
+
+function createFiberFromFragment(elements, mode, lens, key) {
+    var fiber = createFiber(Fragment, elements, key, mode);
+    fiber.lanes = lanes;
+    return fiber;
+}
+```
+
+```jsx
+/* 리액트 내부 코드에 작성되어 있는 파이버 객체 */
+
+function FiberNode (tag, pendingProps, key, mode) {
+    // Instance
+    this.tag = tag;
+    this.key = key;
+    this.elementType = null;
+    this.type = null;
+    this.stateNode = null;
+    
+    // Fiber
+    this.return = null;
+    this.child = null;
+    this.sibling = null;
+    this.index = 0;
+    this.ref = null;
+    this.refCleanup = null;
+    
+    this.pendingProps = pendingProps;
+    this.memoizedProps = null;
+    this.updateQueue = null;
+    this.memoizedState = null;
+    this.dependencies = null;
+    
+    this.mode = mode;
+    
+    // Effects
+    this.flags = NoFlags;
+    this.subtreeFlags = NoFlags;
+    this.deletions = null;
+    
+    this.lanes = NoLanes;
+    this.childLanes = NoLanes;
+    
+    this.alternate = null;
+    
+    // 이하 프로파일러, __DEV__ 코드는 생략...
+}
+```
+- 리액트 파이버의 구현체의 주요 속성을 살펴보면서 어떠한 내용을 담고 있는지 살펴보자.
+    - ```tag``` : 파이버는 하나의 element에 하나가 생성되는 1:1 관계를 가지고 있다. 여기서 1:1로 매칭된 정보를 가지고 있는 것이 바로 tag다.
+    <br/> 1:1로 연결되는 것은 리액트의 컴포넌트일 수도, HTML의 DOM 노드일 수도, 혹은 다른 어떤 것일 수도 있다.
+    - ```stateNode``` : 이 속성에서는 파이버 자체에 대한 참조 정보를 가지고 있으며, 이 참조를 바탕으로 리액트는 파이버와 관련된 상태에 접근한다.
+    - ```child.sibling.return``` : 파이버 간의 관계 개념을 나타내는 속성이다. 리액트 컴포넌트와 동일하게 파이버도 트리 형식을 가지게 되는데, 
+    <br/> 이 트리 형식을 구성하는 데 필요한 정보가 이 속성 내부에 정의된다. 리액트 컴포넌트 트리와 다른 점은 children이 없다는 것, 즉 하나의 child만 존재한다는 점이다.
+    - ``` index ``` : 여러 형제들(sibling) 사이에서 자신의 위치가 몇 번째인지 숫자로 표현한다.
+    - ``` pendingProps ``` : 아직 작업을 미처 처리하지 못한 props
+    - ``` memoizedProps ``` : pendingProps를 기준으로 렌더링이 완료된 이후에 pendingProps를 memoizedProps로 저장해 관리한다. 
+    - ``` updateQueue ``` : 상태 업데이트, 콜백함수, DOM업데이트 등 필요한 작업을 담아두는 큐, 대략 다음과 같은 구조이다.
+    ```tsx
+        type UpdateQueue = {
+            first: Update | null;
+            last: Update | null;
+            hasForceUpdate: boolean;
+            callbackList: null | Array<Callback> // setState로 넘긴 콜백 목록
+        }
+    ```
+    - ```memoizedState``` : 함수 컴포넌트의 훅 목록이 저장된다. 단순히 useState뿐만 아니라 모든 훅 리스트가 저장된다.
+    - ```alternate``` : 리액트의 트리는 두 개인데, 이 alternate는 반대편 트리 파이버를 가리킨다.
+
+- 이렇게 생성된 파이버 객체는 state가 변경되거나 생명주기 메서드가 실행되거나 DOM 변경이 필요한 시점 등에 실행된다.
+<br/> 그리고 중요한 것은 리액트가 파이버를 처리할 때마다 이러한 작업을 직접 바로 처리하기도 하고 스케줄링하기도 한다는 것이다.
+- 즉, 이러한 작업들은 작은 단위로 나눠서 처리할 수도, 애니메이션과 같이 우선순위가 높은 작업은 가능한 한 빠르게 처리하거나, 낮은 작업을 연기시키는 등 좀 더 유연하게 처리된다.
+
+- ```파이버의 객체 값에서도 알 수 있듯 리액트의 핵심 원칙은 UI를 문자열, 숫자, 배열과 같은 값으로 관리한다는 것이다.```
+
+#### 리액트 파이버 트리
 
 ## 더 알아보기
 
