@@ -52,6 +52,29 @@
 
 ## 더 알아보기
 
-### 💥 1. miss_understanding & truth of JVM
+### 💥 1. What is Instantaneous execution by Interpreter
+- ```바이트코드를 하나씩 읽어서, 그 바이트코드에 대응하는 기계어 시퀀스를 직접 실행하는 것```
+- ```즉, 즉석 변환이 아니라 미리 만든 기계어 루틴을 호출하는 구조```
+- 인터프리터의 실제 동작 (HotSpot JVM 인터프리터[= template interpreter] 기준)
+1. 바이트코드 하나 읽기
+2. 그 바이트코드를 처리하는 미리 구현된 C++ 함수/기계어 코드 실행
+```C
+switch (bytecode) {
+    case: IADD:
+        excute precompiled iadd_handler();
+    case: INVOKEVIRTUAL:
+        excute invokevirtual_handler();    
+}
+```
 
-### 💥 2. What is Instantaneous execution by Interpreter
+### 💥 2. miss_understanding & truth of JVM
+- 헷갈리고 있던 이유는 대부분 아래 두 이미지가 상충되기 때문..
+1. 자바는 바이트코드를 네이티브 코드로 변환해서 실행 (컴파일 -> 실행)
+
+- ❌오해 : 자바 바이트코드는 JVM이 곧바로 네이티브 코드로 변환해서 실행한다.
+- ✔️ 사실 
+  - 시작 시점은 인터프리터 실행
+  - 실행 통계를 보고 핫스팟으로 감지된 코드는 JIT 컴파일러가 네이티브 코드로 컴파일
+  - OSR이 개입하여 이미 실행 중인 함수/루프의 스택프레임을 네이티브 코드로 교체
+  - 결과적으로 ```네이티브 코드로 실행되는 것처럼 빠른 속도```를 얻는다.
+
