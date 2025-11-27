@@ -303,6 +303,24 @@ function FiberNode (tag, pendingProps, key, mode) {
 
 ### 2.3 클래스 컴포넌트와 함수 컴포넌트
 
+#### 2.3.1 클래스 컴포넌트 (생략)
+
+#### 2.3.2 함수 컴포넌트
+- React 16.8 버전 이전에는 단수히 무상태 컴포넌트를 구현하기 위한 수단에 불과했지만 16.8 이후 함수 컴포넌트에서 사용 가능한 훅이 등장하면서 상황이 달라졌다.
+
+**함수 컴포넌트 vs 클래스 컴포넌트**
+- 생명주기 메서드의 부재 (useEffect 훅으로 그나마 대체)
+- 그러나 정확히 같지도 않고 useEffect는 생명주기를 위한 훅이 아닌 state를 활용해 동기적으로 부수효과(Side Effect)를 만드는 메커니즘이다.
+
+**함수 컴포넌트와 렌더링된 값**
+- 함수 컴포넌트는 렌더링된 값을 고정하고, 클래스 컴포넌트는 그렇지 못하다.
+- 클래스 컴포넌트는 `props`의 값을 항상 this로부터 가져온다. this가 가리키는 객체, 즉 컴포넌트 인스턴스의 멤버(=필드)는 변경 가능(mutable)한 값이다. 따라서 `render`메서드를 비롯한 리액트의 생명주기 메서드가 변경된 값을 읽을 수 있게 된다.
+- 반면 함수 컴포넌트는 `props`를 인수로 받기 때문에 컴포넌트는 그 값(원본값)을 변경할 수 없고, 해당 값을 그대로 사용하게 된다.
+- 함수 컴포넌트는 렌더링이 일어날 때마다 그 순간의 값이 props와 state를 기준으로 렌더링되고 props와 state가 변경된다면, 다시 한 번 그 값을 기준으로 함수가 호출된다고 볼 수 있다. 반면 클래스 컴포넌트는 시간의 흐름에 따라 변화하는 this를 기준으로 렌더링이 일어난다.
+
+### 2.4 렌더링은 어떻게 일어나는가?
+
+
 ## 더 알아보기
 
 ### 💥 React19 에서의 JSX 트랜스파일링
@@ -327,55 +345,6 @@ function App() {
 - babel 설정을 고의로 ```runtime:"classic"``` 으로 바꾸면 예전처럼 ```React.createElement(...)```로도 변환할 수는 있으나
 <br> React 19 권장 사항에 어긋남
 
-### 💥 React의 비동기 작업은 어떻게 구현되어 있을까?
-- 리액트는 `shoulYieldToHost()` 호출하여 작업 제어권을 브라우저에게 넘겨야하는지 판단
-- `shoulYieldToHost()`는 내부적으로 `performance.now()`로 현재 시간을 측정하여 `deadline`으로 지정한 시간과 같거나 많으면 대략 5ms) `true`를 반환
-- 루프 중간에 break를 호출하여 JS엔진의 호출 스택을 비워주면 브라우저에서 다른 JS 작업을 실행할 수 있음
-```jsx
-/**
-* @description 리액트 스케줄러 패키지의 workLoop 구현 코드
-* @param {number} initialTime 
-*/
-function workLoop(initialTime) {
-    // 중략..
-    
-    while( 
-        currentTask !== null &&
-        !( enableSchedulerDebugging && isSchedulerPaused )
-    ) {
-        if( currentTask.expirationTime > currentTime && shouldYieldToHost() ) {
-            break;
-        }
-        // 생략...
-    }
-}
-```
-1. `MessageChannel API` 생성자가 반환하는 두개의 `port`를 가지고.. `port1.onmessage` 핸들러로 `다음에 이어서 수행할 작업` 함수를 지정
-2. `port2.postMessage(null)`을 호출하여 매크로 태스크 큐에 `다음에 이어서 수행할 작업 함수`를 등록
-    - 더 자세히 말하자면 `port2.postMessage(null)`가 호출되면 `port1`의 `message`이벤트 처리를 위한 태스크가 JS엔진의 매크로태스크 큐에 들어간다.
-    - 호출 스택이 다 비워지고 나서 매크로 태스크 큐의 작업들이 실행될 때가 되면 `message`이벤트 처리를 위한 태스크가 실행되어지고 
-      <br/> 그 `message`이벤트 처리를 위한 핸들러인 `다음에 이어서 수행할 작업 함수`가 실행되는 것이다.
-
-```jsx
-// MessageChannel 예제
-const { port1, port2 } = new MessageChannel();
-
-port1.onmessage = () => console.log("포트1 메세지 핸들러 실행데스");
-
-port2.postMessage(null);
-
-console.log("호출 스택 1");
-
-queueMicrotask(() => {
-    console.log("마이크로 태스크니까 매크로 태스크보다 먼저 실행되어야 함");
-});
-
-console.log("호출 스택 2");
-
-/**
-* 호출 스택 1
-* 호출 스택 2
-* 마이크로 태스크니까 매크로 태스크보다 먼저 실행되어야 함
-* 포트1 메세지 핸들러 실행데스
-*/
-```
+<h3>
+    Link: <a href="./Extra/AsynchronousTaskOfReact.md"> 💥 React의 비동기 작업은 어떻게 구현되어 있을까? </a>
+</h3>
