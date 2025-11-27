@@ -58,10 +58,10 @@ function workLoop(initialTime) {
     }
 }
 ```
-- 리액트는 `shoulYieldToHost()` 호출하여 작업 제어권을 브라우저에게 넘겨야하는지 판단
-- `shoulYieldToHost()`는 내부적으로 `performance.now()`로 현재 시간을 측정하여 `deadline`으로 지정한 시간과 같거나 많으면 대략 5ms) `true`를 반환
-- 루프 중간에 break를 호출하여 JS엔진의 호출 스택을 비워주면 브라우저에서 다른 JS 작업을 실행할 수 있음
+- 리액트는 `shoulYieldToHost()` 호출하여 작업 제어권을 브라우저에게 넘겨야하는지 판단하여 `true`를 반환
+- 루프 중간에 break를 호출하여 JS엔진의 호출 스택을 비워주면 브라우저에서 다른 JS 작업을 실행할 수 있음, `이를 작업 제어권을 넘긴다고 표현하는 것`
 
+**다음 작업을 예약하는 방법**
 1. `MessageChannel API` 생성자가 반환하는 두개의 `port`를 가지고.. `port1.onmessage` 핸들러로 `다음에 이어서 수행할 작업` 함수를 지정
 2. `port2.postMessage(null)`을 호출하여 매크로 태스크 큐에 `다음에 이어서 수행할 작업 함수`를 등록
     - 더 자세히 말하자면 `port2.postMessage(null)`가 호출되면 `port1`의 `message`이벤트 처리를 위한 태스크가 JS엔진의 매크로 태스크 큐에 들어간다.
